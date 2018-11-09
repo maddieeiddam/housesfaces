@@ -1,48 +1,29 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import { Container, Image, Input, Grid } from 'semantic-ui-react'
-import { predict, listInputs } from '../../server/clarifai/app'
-import { ConceptCard, Button } from './index'
+import { Container, Image, Input, Grid, Button } from 'semantic-ui-react'
+import { fetchInputs, fetchPredictions, addUrl, confirmConcept } from '../store/reducer'
+import { ConceptCard } from './index'
 
 class Home extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      inputs: [], //array of all imageUrls already in the model
-      imageUrl: '',
-      uploadedImage: '',
-      conceptArr: [],
+      urlInput: '',
       alertStatus: 'none'
     }
   }
 
-  async componentDidMount() {
-    const inputs = await listInputs()
-    this.setState({
-      inputs: inputs
-    })
+  componentDidMount() {
+    this.props.getUrls()
   }
 
-  handleSubmit = async (evt) => {
+  handleSubmit = (evt) => {
     evt.preventDefault()
-    const { imageUrl } = this.state
-    const concepts = await predict(imageUrl)
-    concepts.forEach(concept => {
-      const conceptInfo = {
-        id: concept.id,
-        name: concept.name,
-        value: concept.value * 100
-      }
-      this.setState(prevState => ({
-        conceptArr: [...prevState.conceptArr, conceptInfo],
-        uploadedImage: imageUrl,
-        imageUrl: ''
-      }))
+    this.props.addUrl(this.state.urlInput)
+    this.props.getPredictions(this.state.urlInput)
+    this.setState({
+      urlInput: ''
     })
-  }
-
-  handleClick = (evt) => {
-    console.log(evt)
   }
 
   render() {
@@ -54,8 +35,8 @@ class Home extends React.Component {
           placeholder='Upload an image...'
           type="text"
           name="imageUrl"
-          value={this.state.imageUrl}
-          onChange={evt => this.setState({ [evt.target.name]: evt.target.value })}
+          value={this.state.urlInput}
+          onChange={evt => this.setState({ urlInput: evt.target.value })}
         />
         <Button
           type="submit"
@@ -64,34 +45,40 @@ class Home extends React.Component {
         />
       </form>
       <br />
-      <Grid relaxed columns={4}>
-        <Grid.Column>
-          <Image
-            src={this.state.uploadedImage}
-            size='medium'
-            rounded
-            centered
-          />
-        </Grid.Column>
-        {this.state.conceptArr.map(concept => {
-          if (this.state.conceptArr.indexOf(concept) < 3) {
-            return (
-              <Grid.Column key={concept.id}>
-                <ConceptCard concept={concept} handleClick={this.handleClick}/>
-              </Grid.Column>
-            )
+      {this.props.imageUrl.length > 0 &&
+            <Image
+              src={this.props.imageUrl}
+              size='medium'
+              rounded
+              centered
+            />
+      }
+      <br />
+      <Grid columns={3} centered>
+          {this.props.predictedConcepts.length > 0 &&
+            this.props.predictedConcepts.map(concept => {
+                return (
+                  <Grid.Column key={concept.id} textAlign='centered'>
+                    <ConceptCard concept={concept} />
+                  </Grid.Column>
+                )
+            })
           }
-        })}
       </Grid>
     </Container>
     )
   }
 }
 
-// const mapState = state => {
-//   return {
-//     concepts: state.concepts
-//   }
-// }
+const mapState = ({predictedConcepts, imageUrl, prevInputs}) => ({predictedConcepts, imageUrl, prevInputs})
 
-export default Home
+const mapDispatch = dispatch => {
+  return {
+    getUrls: () => {dispatch(fetchInputs())},
+    getPredictions: url => {dispatch(fetchPredictions(url))},
+    addUrl: url => dispatch(addUrl(url)),
+    confirmConcept: () => dispatch(confirmConcept())
+  }
+}
+
+export default connect(mapState, mapDispatch)(Home)
