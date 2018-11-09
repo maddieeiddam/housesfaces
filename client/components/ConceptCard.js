@@ -12,15 +12,16 @@ class ConceptCard extends React.Component {
   render () {
     return (
       <div>
-        <h4>I am {(this.props.concept.value * 100).toFixed(4)}% sure this picture is a</h4>
-        <h1>{this.props.concept.name}</h1>
-        <h4>Is this picture a {this.props.concept.name}?</h4>
-          <Menu compact>
-            <Dropdown fluid placeholder='Select...' options={options} simple item />
-          </Menu>
-        <br />
-        <br />
-        <br />
+        <h5>I am {(this.props.concept.value * 100).toFixed(4)}% sure this picture is a</h5>
+        <h2>{this.props.concept.name}</h2>
+        {this.props.status === 'success' &&
+          <div>
+            <h5>Is this picture a {this.props.concept.name}?</h5>
+            <Menu compact>
+              <Dropdown placeholder='Select...' options={options} />
+            </Menu>
+          </div>
+        }
       </div>
     )
   }

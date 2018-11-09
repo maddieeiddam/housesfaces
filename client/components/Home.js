@@ -1,8 +1,8 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import { Container, Image, Input, Grid, Button } from 'semantic-ui-react'
+import { Container, Image, Input, Card, Button } from 'semantic-ui-react'
 import { fetchInputs, fetchPredictions, addUrl, confirmConcept } from '../store/reducer'
-import { ConceptCard } from './index'
+import { ConceptCard, Flagger } from './index'
 
 class Home extends React.Component {
   constructor(props) {
@@ -29,10 +29,11 @@ class Home extends React.Component {
   render() {
     return (
     <Container textAlign='center'>
+      <Flagger status={this.state.alertStatus} />
       <form onSubmit={this.handleSubmit}>
         <Input
           fluid
-          placeholder='Upload an image...'
+          placeholder='upload an image...'
           type="text"
           name="imageUrl"
           value={this.state.urlInput}
@@ -40,7 +41,7 @@ class Home extends React.Component {
         />
         <Button
           type="submit"
-          content="Upload"
+          content="upload"
           align='center'
         />
       </form>
@@ -54,17 +55,26 @@ class Home extends React.Component {
             />
       }
       <br />
-      <Grid columns={3} centered>
+      <form>
+      <Card.Group itemsPerRow={3}>
           {this.props.predictedConcepts.length > 0 &&
             this.props.predictedConcepts.map(concept => {
                 return (
-                  <Grid.Column key={concept.id} textAlign='centered'>
-                    <ConceptCard concept={concept} />
-                  </Grid.Column>
+                  <Card key={concept.id} textAlign='center'>
+                    <ConceptCard concept={concept} status={this.state.alertStatus} />
+                  </Card>
                 )
             })
           }
-      </Grid>
+      </Card.Group>
+      {this.props.predictedConcepts.length > 0 && this.state.alertStatus === 'success' &&
+        <Button
+            type="submit"
+            content="help me learn!"
+            align='center'
+        />
+      }
+      </form>
     </Container>
     )
   }
