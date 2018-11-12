@@ -19,9 +19,21 @@ const Flagger = props => {
         <div className="ui warning message">
           <i className="close icon" />
           <div className="header">
-            I've already seen this one!
+            Something went wrong!
           </div>
-          Hopefully I did alright!  Try uploading another image.
+          This isn't the right type of file, or I've seen this one before.  Try uploading a different image.
+        </div>
+      </div>
+    )
+  } else if (props.status === 'trained') {
+    return (
+      <div>
+        <div className="ui info message">
+          <i className="close icon" />
+          <div className="header">
+            Training successful!
+          </div>
+          Thank you for training housesfaces!  Upload another image and keep going!
         </div>
       </div>
     )
