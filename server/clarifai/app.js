@@ -1,6 +1,5 @@
 const Clarifai = require('clarifai')
-
-const app = new Clarifai.App({apiKey: process.env.CLARIFAI_API_KEY})
+const app = new Clarifai.App({apiKey: '0ad45f3b24f948a5bc02e8dc2473866b'})
 
 //get predictions for a url input from general model
 export const predict = async (url) => {
